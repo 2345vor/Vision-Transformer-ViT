@@ -28,3 +28,5 @@ Base on the pretrained weight, after one epoch, we get 98.1 Accuracy
 model  | dataset  | acc
 ---- | ----- | ------  
 ViT-B_16  | CIFAR10 | 98.1 
+
+reference：https://blog.csdn.net/VOR234/article/details/125521250
