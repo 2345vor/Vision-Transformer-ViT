@@ -12,7 +12,7 @@ from tqdm import tqdm
 import logging
 from scheduler import cosine_lr
 logging.basicConfig(level = logging.NOTSET)
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 device = torch.device("cuda")
  
 def train_model(args, trainloader, testloader):
@@ -30,10 +30,11 @@ def train_model(args, trainloader, testloader):
     scheduler = cosine_lr(opitimizer, args.learning_rate, args.warmup, total_steps)   
     nb_tr_steps = 0
     logging.info('**************************** start to train *******************************')
-    for epoch in range(args.epoches):
+    for epoch in range(1):
         train_loss = 0 
         train_iter = 0
-        for _, batch in enumerate(tqdm(trainloader, desc = "Iteration")):
+        # for _, batch in enumerate(tqdm(trainloader, desc = "Iteration")):
+        for batch in tqdm(trainloader):
             nb_tr_steps += 1  
             opitimizer.zero_grad()
             batch = tuple(t.to(device) for t in batch)
@@ -53,16 +54,18 @@ def train_model(args, trainloader, testloader):
         logging.info('**************************** start to evaluate *******************************')
         model.eval()
         total, correct = 0, 0
-        for _, batch in enumerate(tqdm(testloader, desc = "Iteration")):
-            batch = tuple(t.to(device) for t in batch)
-            batch_X, batch_Y = batch
-            outputs = model(batch_X)
-            _, predicted = torch.max(outputs.data, 1)
-            total += batch_Y.size(0)
-            correct += (predicted == batch_Y).sum()
-            
-        acc = (correct / total).item()
-        logging.info('Epoch: %d train_loss: %f Accuracy: %f', epoch, train_loss, acc)
+        with torch.no_grad():  ###插在此处
+            # for _, batch in enumerate(tqdm(testloader, desc = "Iteration")):
+            for batch in tqdm(testloader):
+                batch = tuple(t.to(device) for t in batch)
+                batch_X, batch_Y = batch
+                outputs = model(batch_X)
+                _, predicted = torch.max(outputs.data, 1)
+                total += batch_Y.size(0)
+                correct += (predicted == batch_Y).sum()
+
+            acc = (correct / total).item()
+            logging.info('Epoch: %d train_loss: %f Accuracy: %f', epoch, train_loss, acc)
         if not os.path.exists(args.output):
             os.mkdir(args.output)
         output_path = os.path.join(args.output, str(acc)+'.pt')

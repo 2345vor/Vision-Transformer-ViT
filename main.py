@@ -27,8 +27,8 @@ def main():
     parser.add_argument(
         "--warmup", type = int, default = 500, help = "Number of steps to warmup for."
     )
-    parser.add_argument("--batch_size", type = int, default = 64, help = "Number of steps to warmup for.")
-    parser.add_argument("--epoches", type = int, default = 5, help = "Number of steps to warmup for.")
+    parser.add_argument("--batch_size", type = int, default = 4, help = "Number of steps to warmup for.")
+    parser.add_argument("--epoches", type = int, default = 1, help = "Number of steps to warmup for.")
     #Vit params
     parser.add_argument("--output", default = './output', type = str)
     parser.add_argument("--vit_model", default = './Vit_weights/imagenet21k+imagenet2012_ViT-B_16-224.pth', type = str)
@@ -51,10 +51,10 @@ def main():
         ])
 
     trainset = datasets.CIFAR10(root = './data', train = True,
-                                        download = False, transform = transform)
+                                        download = True, transform = transform)
                                         
-    testset = datasets.CIFAR10(root = './data', train = False,
-                                        download = False, transform = transform)
+    testset = datasets.CIFAR10(root = './data', train = True,
+                                        download = True, transform = transform)
                                         
     trainloader = torch.utils.data.DataLoader(trainset, batch_size = args.batch_size,
                                             shuffle = True, num_workers = 2)
